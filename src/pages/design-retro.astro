@@ -1,0 +1,153 @@
+---
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Jared's Hub | Retro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-color: #2c2c54;
+        --card-bg: #474787;
+        --text-primary: #f7f1e3;
+        --accent: #ff5252;
+        --shadow: #227093;
+      }
+
+      body {
+        margin: 0;
+        font-family: 'Press Start 2P', cursive;
+        background-color: var(--bg-color);
+        color: var(--text-primary);
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        image-rendering: pixelated;
+      }
+
+      main {
+        text-align: center;
+        z-index: 1;
+        padding: 2rem;
+        border: 4px solid var(--text-primary);
+        box-shadow: 10px 10px 0 var(--shadow);
+        background: #40407a;
+      }
+
+      h1 {
+        font-size: 2rem;
+        line-height: 1.5;
+        margin: 0 0 2rem 0;
+        color: #ffda79;
+        text-shadow: 4px 4px 0 #000;
+      }
+
+      p {
+        font-size: 0.8rem;
+        margin-bottom: 3rem;
+        line-height: 1.8;
+        color: #d1ccc0;
+      }
+
+      .grid {
+        display: flex;
+        gap: 2rem;
+        justify-content: center;
+      }
+
+      .card {
+        background: var(--card-bg);
+        padding: 1.5rem;
+        text-decoration: none;
+        color: var(--text-primary);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        border: 4px solid #000;
+        box-shadow: 6px 6px 0 #000;
+        transition: transform 0.1s;
+        position: relative;
+      }
+
+      .card:active {
+        transform: translate(4px, 4px);
+        box-shadow: 2px 2px 0 #000;
+      }
+
+      .card:hover {
+        background: #5858a8;
+      }
+
+      .card-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .card h2 {
+        margin: 0;
+        font-size: 0.8rem;
+        color: #33d9b2;
+      }
+
+      .back-link {
+        position: absolute;
+        top: 2rem;
+        left: 2rem;
+        color: var(--text-primary);
+        text-decoration: none;
+        font-size: 0.7rem;
+        background: #b33939;
+        padding: 1rem;
+        border: 4px solid #000;
+        box-shadow: 4px 4px 0 #000;
+      }
+
+      .back-link:hover {
+        background: #ff5252;
+      }
+
+      .scanlines {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          to bottom,
+          rgba(255,255,255,0),
+          rgba(255,255,255,0) 50%,
+          rgba(0,0,0,0.2) 50%,
+          rgba(0,0,0,0.2)
+        );
+        background-size: 100% 4px;
+        pointer-events: none;
+        z-index: 10;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="scanlines"></div>
+    <a href="/" class="back-link">< BACK</a>
+    <main>
+      <h1>PLAYER 1<br>READY</h1>
+      <p>INSERT COIN TO START</p>
+      
+      <div class="grid">
+        <a href="/games" class="card">
+          <div class="card-icon">🕹️</div>
+          <h2>GAMES</h2>
+          <span>START</span>
+        </a>
+      </div>
+    </main>
+  </body>
+</html>

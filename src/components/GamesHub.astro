@@ -40,7 +40,10 @@ const WEEKLY_GAMES: Game[] = [
   <div class="games-section" id="daily-section">
     <header class="section-header">
       <div class="header-content">
-        <h2>Daily Games</h2>
+        <div>
+          <a href="/" class="back-link">← Home</a>
+          <h2>Daily Games</h2>
+        </div>
         <span class="date-badge" id="daily-date">Today</span>
       </div>
       <div class="progress-wrapper">
@@ -282,6 +285,20 @@ const WEEKLY_GAMES: Game[] = [
     background: linear-gradient(to right, #fff, #a1a1aa);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+  }
+
+  .back-link {
+    display: inline-block;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    transition: color 0.2s;
+  }
+
+  .back-link:hover {
+    color: var(--text-primary);
   }
 
   .date-badge {
