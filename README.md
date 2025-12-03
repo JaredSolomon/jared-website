@@ -1,46 +1,52 @@
-# Astro Starter Kit: Basics
+# 🎮 Jared's Games Hub
 
-```sh
-npm create astro@latest -- --template basics
+A personal dashboard to track your daily and weekly web games progress. Built with [Astro](https://astro.build).
+
+## ✨ Features
+
+- **Daily Game Tracking**: Keep track of Wordle, Connections, Strands, and many more.
+- **Weekly Game Tracking**: Track weekly leagues and fantasy games.
+- **Progress Bars**: Visual feedback on your daily completion status.
+- **Local Persistence**: Your progress is saved automatically to your browser's local storage.
+- **Smart Resets**:
+  - Daily games reset automatically at midnight.
+  - Weekly games reset automatically on Mondays.
+- **Premium Design**: Sleek dark mode interface with glassmorphism effects.
+
+## 🛠️ Tech Stack
+
+- **Framework**: [Astro](https://astro.build)
+- **Styling**: Scoped CSS (No external CSS frameworks)
+- **Logic**: Vanilla JavaScript (Client-side)
+
+## 🚀 Getting Started
+
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd jared-website
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+
+4. **Open in browser**
+   Navigate to `http://localhost:4321` to see your hub!
+
+## 📝 Customization
+
+To add or remove games, edit the `DAILY_GAMES` or `WEEKLY_GAMES` arrays in `src/components/GamesHub.astro`.
+
+```typescript
+const DAILY_GAMES = [
+  { id: "wordle", name: "Wordle", url: "..." },
+  // Add your games here
+];
 ```
-
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
-
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
-```
-
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
