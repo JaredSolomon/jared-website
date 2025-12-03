@@ -1,0 +1,482 @@
+---
+interface Game {
+  id: string;
+  name: string;
+  url: string;
+}
+
+const DAILY_GAMES: Game[] = [
+  { id: "wordle",        name: "Wordle",                   url: "https://www.nytimes.com/games/wordle/index.html" },
+  { id: "connections",   name: "Connections",              url: "https://www.nytimes.com/games/connections" },
+  { id: "strands",       name: "Strands",                  url: "https://www.nytimes.com/games/strands" },
+  { id: "nytmini",       name: "NYT Daily Mini",           url: "https://www.nytimes.com/crosswords/game/mini" },
+  { id: "disorderly",    name: "Disorderly",               url: "https://playdisorderly.com/" },
+  { id: "timeguessr",    name: "TimeGuessr",               url: "https://timeguessr.com" },
+  { id: "bandle",        name: "Bandle",                   url: "https://bandle.app" },
+  { id: "movietomovie",  name: "Movie to Movie",           url: "https://movietomovie.com/" },
+  { id: "framed",        name: "Framed",                   url: "https://framed.wtf" },
+  { id: "cine2nerdle",   name: "Cine2Nerdle",              url: "https://www.cinenerdle2.app" },
+  { id: "hardgolf",      name: "Kinda Hard Golf",          url: "https://kindahardgolf.com/" },
+  { id: "dozen",         name: "The Dozen: Daily Trivia",  url: "https://dailydozentrivia.com/" },
+  { id: "costcodle",     name: "CostCodle",                url: "https://costcodle.com/" },
+  { id: "raddle",        name: "Raddle",                   url: "https://raddle.quest" },
+  { id: "scrandle",      name: "Scrandle",                 url: "https://scrandle.com/" },
+  { id: "foodguessr",    name: "FoodGuessr",               url: "https://www.foodguessr.com/" },
+  { id: "pinpoint",      name: "LinkedIn Pinpoint",        url: "https://www.linkedin.com/games/pinpoint" },
+  { id: "crossclimb",    name: "LinkedIn Crossclimb",      url: "https://www.linkedin.com/games/crossclimb" },
+  { id: "queens",        name: "LinkedIn Queens",          url: "https://www.linkedin.com/games/queens" },
+  { id: "zip",           name: "LinkedIn Zip",             url: "https://www.linkedin.com/games/zip" },
+  { id: "tango",         name: "LinkedIn Tango",           url: "https://www.linkedin.com/games/tango" },
+  { id: "minisudoku",    name: "LinkedIn Mini Sudoku",     url: "https://www.linkedin.com/games/minisudoku" },
+];
+
+const WEEKLY_GAMES: Game[] = [
+  { id: "fanduel",  name: "FanDuel League",      url: "https://www.fanduel.com/leagues/1582526" },
+  { id: "survivor", name: "Fantasy Survivor",    url: "https://www.fantasysurvivorgame.com/vote.html" },
+];
+---
+
+<div class="games-hub-container">
+  <div class="games-section" id="daily-section">
+    <header class="section-header">
+      <div class="header-content">
+        <h2>Daily Games</h2>
+        <span class="date-badge" id="daily-date">Today</span>
+      </div>
+      <div class="progress-wrapper">
+        <div class="progress-bar">
+          <div class="progress-fill" id="daily-progress-fill" style="width: 0%"></div>
+        </div>
+        <span class="progress-text" id="daily-progress-text">0 / 0</span>
+      </div>
+    </header>
+    
+    <div class="games-grid">
+      {DAILY_GAMES.map((game) => (
+        <div class="game-card" data-id={game.id} data-period="daily">
+          <a href={game.url} target="_blank" rel="noopener noreferrer" class="game-link">
+            <div class="icon-wrapper">
+              <img 
+                src={`https://www.google.com/s2/favicons?domain=${new URL(game.url).hostname}&sz=64`} 
+                alt="" 
+                class="game-icon"
+                loading="lazy"
+              />
+            </div>
+            <span class="game-name">{game.name}</span>
+          </a>
+          <button class="check-btn" aria-label={`Mark ${game.name} as done`}>
+            <div class="check-circle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+          </button>
+        </div>
+      ))}
+    </div>
+
+    <div class="controls">
+      <button class="control-btn primary" id="daily-mark-all">Mark All Done</button>
+      <button class="control-btn secondary" id="daily-reset">Reset Day</button>
+    </div>
+  </div>
+
+  <div class="games-section" id="weekly-section">
+    <header class="section-header">
+      <div class="header-content">
+        <h2>Weekly Games</h2>
+        <span class="date-badge" id="weekly-date">This Week</span>
+      </div>
+      <div class="progress-wrapper">
+        <div class="progress-bar">
+          <div class="progress-fill" id="weekly-progress-fill" style="width: 0%"></div>
+        </div>
+        <span class="progress-text" id="weekly-progress-text">0 / 0</span>
+      </div>
+    </header>
+
+    <div class="games-grid">
+      {WEEKLY_GAMES.map((game) => (
+        <div class="game-card" data-id={game.id} data-period="weekly">
+          <a href={game.url} target="_blank" rel="noopener noreferrer" class="game-link">
+            <div class="icon-wrapper">
+              <img 
+                src={`https://www.google.com/s2/favicons?domain=${new URL(game.url).hostname}&sz=64`} 
+                alt="" 
+                class="game-icon"
+                loading="lazy"
+              />
+            </div>
+            <span class="game-name">{game.name}</span>
+          </a>
+          <button class="check-btn" aria-label={`Mark ${game.name} as done`}>
+            <div class="check-circle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+          </button>
+        </div>
+      ))}
+    </div>
+
+    <div class="controls">
+      <button class="control-btn primary" id="weekly-mark-all">Mark All Done</button>
+      <button class="control-btn secondary" id="weekly-reset">Reset Week</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Client-side logic
+  const DAILY_GAMES_IDS = [
+    "wordle", "connections", "strands", "nytmini", "disorderly", "timeguessr", 
+    "bandle", "movietomovie", "framed", "cine2nerdle", "hardgolf", "dozen", 
+    "costcodle", "raddle", "scrandle", "foodguessr", "pinpoint", "crossclimb", 
+    "queens", "zip", "tango", "minisudoku"
+  ];
+  const WEEKLY_GAMES_IDS = ["fanduel", "survivor"];
+
+  const todayISO = () => {
+    const n = new Date();
+    return new Date(n.getFullYear(), n.getMonth(), n.getDate()).toISOString().slice(0,10);
+  };
+
+  const startOfWeekISO = () => {
+    const n = new Date();
+    const d = new Date(n.getFullYear(), n.getMonth(), n.getDate());
+    const day = d.getDay();
+    const toMon = (day + 6) % 7;
+    d.setDate(d.getDate() - toMon);
+    return d.toISOString().slice(0,10);
+  };
+
+  function initSection(period, gameIds) {
+    const storageKey = `${period}Games:state`;
+    const periodKey = period === 'daily' ? todayISO() : startOfWeekISO();
+    
+    // Update date display
+    const dateEl = document.getElementById(`${period}-date`);
+    if (dateEl) dateEl.textContent = periodKey;
+
+    // Load state
+    let state = { periodKey, done: {} };
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed.periodKey === periodKey) {
+          state = parsed;
+        }
+      }
+    } catch (e) {
+      console.warn('State load error', e);
+    }
+
+    const save = () => localStorage.setItem(storageKey, JSON.stringify(state));
+
+    const updateUI = () => {
+      const total = gameIds.length;
+      const doneCount = Object.keys(state.done).length;
+      const pct = total ? Math.round((doneCount / total) * 100) : 0;
+      
+      const fill = document.getElementById(`${period}-progress-fill`);
+      const text = document.getElementById(`${period}-progress-text`);
+      
+      if (fill) fill.style.width = `${pct}%`;
+      if (text) text.textContent = `${doneCount} / ${total}`;
+
+      // Update cards
+      document.querySelectorAll(`.game-card[data-period="${period}"]`).forEach(card => {
+        const id = card.getAttribute('data-id');
+        if (state.done[id]) {
+          card.classList.add('is-done');
+        } else {
+          card.classList.remove('is-done');
+        }
+      });
+    };
+
+    // Event Listeners
+    document.querySelectorAll(`.game-card[data-period="${period}"]`).forEach(card => {
+      const id = card.getAttribute('data-id');
+      const link = card.querySelector('.game-link');
+      const btn = card.querySelector('.check-btn');
+
+      // Link click marks as done
+      link?.addEventListener('click', () => {
+        state.done[id] = true;
+        save();
+        updateUI();
+      });
+
+      // Toggle button
+      btn?.addEventListener('click', () => {
+        if (state.done[id]) {
+          delete state.done[id];
+        } else {
+          state.done[id] = true;
+        }
+        save();
+        updateUI();
+      });
+    });
+
+    // Controls
+    document.getElementById(`${period}-mark-all`)?.addEventListener('click', () => {
+      gameIds.forEach(id => state.done[id] = true);
+      save();
+      updateUI();
+    });
+
+    document.getElementById(`${period}-reset`)?.addEventListener('click', () => {
+      state.done = {};
+      save();
+      updateUI();
+    });
+
+    // Initial render
+    updateUI();
+  }
+
+  // Initialize
+  initSection('daily', DAILY_GAMES_IDS);
+  initSection('weekly', WEEKLY_GAMES_IDS);
+</script>
+
+<style>
+  .games-hub-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    padding: 1rem;
+  }
+
+  .games-section {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 2rem;
+    backdrop-filter: blur(10px);
+  }
+
+  .section-header {
+    margin-bottom: 2rem;
+  }
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0;
+    background: linear-gradient(to right, #fff, #a1a1aa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .date-badge {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .progress-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .progress-bar {
+    flex: 1;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 4px;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 12px var(--accent-glow);
+  }
+
+  .progress-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    min-width: 3rem;
+    text-align: right;
+  }
+
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .game-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease;
+  }
+
+  .game-card:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .game-card.is-done {
+    background: rgba(16, 185, 129, 0.05);
+    border-color: rgba(16, 185, 129, 0.2);
+  }
+
+  .game-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-decoration: none;
+    color: var(--text-primary);
+    flex: 1;
+    min-width: 0;
+  }
+
+  .icon-wrapper {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .game-icon {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .game-name {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .game-card.is-done .game-name {
+    color: var(--text-secondary);
+    text-decoration: line-through;
+  }
+
+  .check-btn {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: color 0.2s;
+  }
+
+  .check-btn:hover {
+    color: var(--text-primary);
+  }
+
+  .check-circle {
+    width: 24px;
+    height: 24px;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .check-circle svg {
+    width: 16px;
+    height: 16px;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.2s;
+  }
+
+  .game-card.is-done .check-circle {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+  }
+
+  .game-card.is-done .check-circle svg {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+  }
+
+  .control-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .control-btn.primary {
+    background: var(--accent);
+    color: #000;
+    border: none;
+  }
+
+  .control-btn.primary:hover {
+    background: #34d399;
+  }
+
+  .control-btn.secondary {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .control-btn.secondary:hover {
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  @media (max-width: 640px) {
+    .games-section {
+      padding: 1.5rem;
+    }
+    
+    .games-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

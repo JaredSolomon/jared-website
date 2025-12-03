@@ -1,4 +1,5 @@
 ---
+import GamesHub from '../components/GamesHub.astro';
 ---
 <html lang="en">
   <head>
@@ -6,7 +7,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <title>System Status</title>
+    <title>Daily Games Hub</title>
     <style>
       :root {
         --bg-color: #0a0a0a;
@@ -22,11 +23,9 @@
         font-family: 'Inter', system-ui, -apple-system, sans-serif;
         background-color: var(--bg-color);
         color: var(--text-primary);
-        height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
+        min-height: 100vh;
+        overflow-x: hidden;
+        padding: 2rem 0;
       }
 
       .background-glow {
@@ -104,13 +103,6 @@
   </head>
   <body>
     <div class="background-glow"></div>
-    <div class="card">
-      <div class="status-badge">
-        <div class="status-dot"></div>
-        SYSTEM ONLINE
-      </div>
-      <h1>It Works!</h1>
-      <p>Your Astro environment is fully operational and ready for development.</p>
-    </div>
+    <GamesHub />
   </body>
 </html>
