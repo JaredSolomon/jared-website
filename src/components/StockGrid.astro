@@ -1,0 +1,76 @@
+---
+import YahooFinance from "yahoo-finance2";
+import StockCard from "./StockCard.astro";
+
+const yahooFinance = new YahooFinance();
+
+const SYMBOLS = [
+    "SPY",
+    "QQQ",
+    "DIA", // Indices
+    "AAPL",
+    "MSFT",
+    "GOOGL", // Tech
+    "BTC-USD",
+    "ETH-USD", // Crypto
+];
+
+interface StockData {
+    symbol: string;
+    shortName?: string;
+    regularMarketPrice: number;
+    regularMarketChange: number;
+    regularMarketChangePercent: number;
+}
+
+let stocks: StockData[] = [];
+let error: string | null = null;
+
+try {
+    const results = await Promise.all(
+        SYMBOLS.map(async (symbol) => {
+            try {
+                const quote = await yahooFinance.quote(symbol);
+                return {
+                    symbol: quote.symbol,
+                    shortName: quote.shortName,
+                    regularMarketPrice: quote.regularMarketPrice || 0,
+                    regularMarketChange: quote.regularMarketChange || 0,
+                    regularMarketChangePercent:
+                        quote.regularMarketChangePercent || 0,
+                };
+            } catch (e: any) {
+                console.error(`Error fetching ${symbol}:`, e);
+                error = `Error fetching ${symbol}: ${e.message || e}`;
+                return null;
+            }
+        }),
+    );
+
+    stocks = results.filter((s): s is StockData => s !== null);
+} catch (e: any) {
+    console.error("Error fetching stocks:", e);
+    error = e.message || String(e);
+}
+---
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {
+        stocks.length === 0 && !error && (
+            <div class="col-span-full text-center text-gray-400 py-12">
+                <p>No stock data available. Check console for errors.</p>
+            </div>
+        )
+    }
+    {
+        stocks.map((stock) => (
+            <StockCard
+                symbol={stock.symbol}
+                name={stock.shortName}
+                price={stock.regularMarketPrice}
+                change={stock.regularMarketChange}
+                changePercent={stock.regularMarketChangePercent}
+            />
+        ))
+    }
+</div>

@@ -1,0 +1,73 @@
+---
+import Parser from "rss-parser";
+import NewsCard from "./NewsCard.astro";
+
+const parser = new Parser();
+
+// Reddit RSS Feed (Combined)
+const SUBREDDITS = ["technology", "webdev", "gaming", "movies", "space"];
+const FEED_URL = `https://www.reddit.com/r/${SUBREDDITS.join("+")}/top/.rss?t=day`;
+
+const FEEDS = [
+    {
+        url: FEED_URL,
+        source: "Reddit",
+    },
+];
+
+interface NewsItem {
+    title: string;
+    link: string;
+    pubDate: string;
+    source: string;
+    isoDate: string;
+}
+
+let newsItems: NewsItem[] = [];
+
+try {
+    const feedPromises = FEEDS.map(async (feed) => {
+        try {
+            const parsed = await parser.parseURL(feed.url);
+            return parsed.items.map((item: any) => {
+                // Extract subreddit from category or title if possible, otherwise use feed source
+                // Reddit RSS items usually have categories for the subreddit
+                const subreddit = item.categories
+                    ? item.categories[0]
+                    : feed.source;
+
+                return {
+                    title: item.title,
+                    link: item.link,
+                    pubDate: item.pubDate,
+                    source: subreddit || feed.source,
+                    isoDate: item.isoDate,
+                };
+            });
+        } catch (e) {
+            console.error(`Error fetching feed ${feed.url}:`, e);
+            return [];
+        }
+    });
+
+    const results = await Promise.all(feedPromises);
+    newsItems = results.flat().sort((a, b) => {
+        return new Date(b.isoDate).getTime() - new Date(a.isoDate).getTime();
+    });
+} catch (e) {
+    console.error("Error fetching news:", e);
+}
+---
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {
+        newsItems.map((item) => (
+            <NewsCard
+                title={item.title}
+                link={item.link}
+                source={item.source}
+                pubDate={item.pubDate}
+            />
+        ))
+    }
+</div>
