@@ -1,8 +1,47 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import GamesHub from "../components/GamesHub.astro";
 ---
 
 <Layout>
-  <GamesHub />
+  <div
+    class="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden"
+  >
+    <!-- Background Glow -->
+    <div
+      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/20 blur-[100px] rounded-full animate-pulse-slow z-[-1]"
+    >
+    </div>
+
+    <main class="text-center z-10 max-w-4xl mx-auto">
+      <h1
+        class="text-6xl md:text-7xl font-bold mb-6 tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-white/50"
+      >
+        Welcome
+      </h1>
+
+      <div
+        class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto mb-16"
+      >
+        <a
+          href="/games"
+          class="group relative bg-surface backdrop-blur-xl border border-white/10 rounded-2xl p-8 hover:bg-white/5 hover:border-primary/50 transition-all duration-300 hover:-translate-y-1"
+        >
+          <div
+            class="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl"
+          >
+          </div>
+          <div class="relative flex flex-col items-center gap-4">
+            <div
+              class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-3xl mb-2 group-hover:scale-110 transition-transform duration-300"
+            >
+              🎮
+            </div>
+            <h2 class="text-2xl font-bold text-white">Games Hub</h2>
+            <span class="text-gray-400">Daily & Weekly Tracker</span>
+          </div>
+        </a>
+        <!-- Placeholder for future cards -->
+      </div>
+    </main>
+  </div>
 </Layout>
