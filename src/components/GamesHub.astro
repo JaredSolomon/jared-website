@@ -100,12 +100,56 @@ const WEEKLY_GAMES: Game[] = [
 ];
 ---
 
+<<<<<<< HEAD
 <div class="w-full max-w-6xl mx-auto flex flex-col gap-12 p-4 md:p-8">
   <!-- Daily Games Section -->
   <div class="relative group" id="daily-section">
     <div
       class="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-purple-500/20 rounded-[32px] blur opacity-50 group-hover:opacity-75 transition duration-1000"
     >
+=======
+<div class="games-hub-container">
+  <div class="games-section" id="daily-section">
+    <header class="section-header">
+      <div class="header-content">
+        <div>
+          <a href="/" class="back-link">← Home</a>
+          <h2>Daily Games</h2>
+        </div>
+        <span class="date-badge" id="daily-date">Today</span>
+      </div>
+      <div class="progress-wrapper">
+        <div class="progress-bar">
+          <div class="progress-fill" id="daily-progress-fill" style="width: 0%"></div>
+        </div>
+        <span class="progress-text" id="daily-progress-text">0 / 0</span>
+      </div>
+    </header>
+    
+    <div class="games-grid">
+      {DAILY_GAMES.map((game) => (
+        <div class="game-card" data-id={game.id} data-period="daily">
+          <a href={game.url} target="_blank" rel="noopener noreferrer" class="game-link">
+            <div class="icon-wrapper">
+              <img 
+                src={`https://www.google.com/s2/favicons?domain=${new URL(game.url).hostname}&sz=64`} 
+                alt="" 
+                class="game-icon"
+                loading="lazy"
+              />
+            </div>
+            <span class="game-name">{game.name}</span>
+          </a>
+          <button class="check-btn" aria-label={`Mark ${game.name} as done`}>
+            <div class="check-circle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+          </button>
+        </div>
+      ))}
+>>>>>>> 8a799e2156fb1504d35876ec350a6b169428af59
     </div>
     <div
       class="relative bg-surface backdrop-blur-xl border border-white/10 rounded-[30px] p-6 md:p-10 overflow-hidden"
@@ -467,3 +511,256 @@ const WEEKLY_GAMES: Game[] = [
   initSection("daily", DAILY_GAMES_IDS);
   initSection("weekly", WEEKLY_GAMES_IDS);
 </script>
+<<<<<<< HEAD
+=======
+
+<style>
+  .games-hub-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    padding: 1rem;
+  }
+
+  .games-section {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 2rem;
+    backdrop-filter: blur(10px);
+  }
+
+  .section-header {
+    margin-bottom: 2rem;
+  }
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0;
+    background: linear-gradient(to right, #fff, #a1a1aa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .back-link {
+    display: inline-block;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    transition: color 0.2s;
+  }
+
+  .back-link:hover {
+    color: var(--text-primary);
+  }
+
+  .date-badge {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .progress-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .progress-bar {
+    flex: 1;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 4px;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 12px var(--accent-glow);
+  }
+
+  .progress-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    min-width: 3rem;
+    text-align: right;
+  }
+
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .game-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease;
+  }
+
+  .game-card:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .game-card.is-done {
+    background: rgba(16, 185, 129, 0.05);
+    border-color: rgba(16, 185, 129, 0.2);
+  }
+
+  .game-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-decoration: none;
+    color: var(--text-primary);
+    flex: 1;
+    min-width: 0;
+  }
+
+  .icon-wrapper {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .game-icon {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .game-name {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .game-card.is-done .game-name {
+    color: var(--text-secondary);
+    text-decoration: line-through;
+  }
+
+  .check-btn {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: color 0.2s;
+  }
+
+  .check-btn:hover {
+    color: var(--text-primary);
+  }
+
+  .check-circle {
+    width: 24px;
+    height: 24px;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .check-circle svg {
+    width: 16px;
+    height: 16px;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.2s;
+  }
+
+  .game-card.is-done .check-circle {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+  }
+
+  .game-card.is-done .check-circle svg {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+  }
+
+  .control-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .control-btn.primary {
+    background: var(--accent);
+    color: #000;
+    border: none;
+  }
+
+  .control-btn.primary:hover {
+    background: #34d399;
+  }
+
+  .control-btn.secondary {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .control-btn.secondary:hover {
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  @media (max-width: 640px) {
+    .games-section {
+      padding: 1.5rem;
+    }
+    
+    .games-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+>>>>>>> 8a799e2156fb1504d35876ec350a6b169428af59
