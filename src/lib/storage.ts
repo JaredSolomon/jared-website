@@ -19,6 +19,11 @@ export interface VideoAnalysis {
         }>;
         meetingDate?: string;
         meetingType?: string;
+        location?: {
+            city?: string;
+            county?: string;
+            state?: string;
+        };
     };
     status: 'queued' | 'fetched' | 'analyzed' | 'error';
     error?: string;
@@ -35,7 +40,7 @@ export const storage = {
             try {
                 const filePath = path.join(DATA_DIR, `${key}.json`);
                 const data = await fs.readFile(filePath, 'utf-8');
-                return JSON.parse(data);
+                return JSON.parse(data as string);
             } catch (e) {
                 return null;
             }

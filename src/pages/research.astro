@@ -18,12 +18,29 @@ import Layout from "../layouts/Layout.astro";
                 id="urlInput"
                 class="w-full h-40 bg-gray-900 text-white p-4 rounded border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none font-mono text-sm"
                 placeholder="https://www.youtube.com/watch?v=..."></textarea>
-            <button
-                id="ingestBtn"
-                class="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded transition-colors"
+
+            <div class="flex items-center gap-4 mt-4">
+                <button
+                    id="ingestBtn"
+                    class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    Start Ingestion
+                </button>
+                <div id="ingestStatus" class="text-gray-400 text-sm hidden">
+                    <!-- Status message injected here -->
+                </div>
+            </div>
+            <div
+                id="ingestProgressBar"
+                class="w-full bg-gray-700 rounded-full h-2.5 mt-4 hidden"
             >
-                Start Ingestion
-            </button>
+                <div
+                    id="ingestProgressFill"
+                    class="bg-blue-600 h-2.5 rounded-full"
+                    style="width: 0%"
+                >
+                </div>
+            </div>
         </div>
 
         <!-- Progress Section -->
@@ -60,12 +77,29 @@ import Layout from "../layouts/Layout.astro";
                     <option value="Budget">Budget</option>
                 </select>
             </div>
-            <button
-                id="generateBtn"
-                class="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded transition-colors mb-6"
-            >
-                Generate White Paper
-            </button>
+
+            <div class="mb-6">
+                <div class="flex gap-4">
+                    <button
+                        id="generateBtn"
+                        class="flex-1 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Generate White Paper
+                    </button>
+                    <button
+                        id="downloadBtn"
+                        class="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed hidden"
+                    >
+                        Download PDF
+                    </button>
+                </div>
+                <div
+                    id="reportStatus"
+                    class="text-center text-gray-400 text-sm mt-2 hidden"
+                >
+                    <!-- Status message injected here -->
+                </div>
+            </div>
 
             <div
                 id="reportOutput"
@@ -79,12 +113,21 @@ import Layout from "../layouts/Layout.astro";
 
 <script>
     import { marked } from "marked";
+    // @ts-ignore
+    import html2pdf from "html2pdf.js";
 
     const urlInput = document.getElementById("urlInput") as HTMLTextAreaElement;
     const ingestBtn = document.getElementById("ingestBtn");
+    const ingestStatus = document.getElementById("ingestStatus");
+    const ingestProgressBar = document.getElementById("ingestProgressBar");
+    const ingestProgressFill = document.getElementById("ingestProgressFill");
+
     const progressSection = document.getElementById("progressSection");
     const progressGrid = document.getElementById("progressGrid");
+
     const generateBtn = document.getElementById("generateBtn");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const reportStatus = document.getElementById("reportStatus");
     const reportOutput = document.getElementById("reportOutput");
     const categoryFilter = document.getElementById(
         "categoryFilter",
@@ -99,13 +142,23 @@ import Layout from "../layouts/Layout.astro";
             .filter((u) => u);
         if (urls.length === 0) return;
 
-        ingestBtn.textContent = "Ingesting...";
+        ingestBtn.textContent = "Processing...";
         (ingestBtn as HTMLButtonElement).disabled = true;
+
+        // Show status UI
+        ingestStatus?.classList.remove("hidden");
+        ingestProgressBar?.classList.remove("hidden");
+        if (ingestStatus)
+            ingestStatus.textContent = `Starting ingestion for ${urls.length} videos...`;
+        if (ingestProgressFill) ingestProgressFill.style.width = "5%";
+
         progressSection?.classList.remove("hidden");
         progressGrid!.innerHTML = "";
 
         try {
             // 1. Ingest
+            if (ingestStatus)
+                ingestStatus.textContent = "Fetching transcripts...";
             const ingestRes = await fetch("/api/research/ingest", {
                 method: "POST",
                 body: JSON.stringify({ urls }),
@@ -114,14 +167,30 @@ import Layout from "../layouts/Layout.astro";
             processedVideos = results;
 
             renderProgress();
+            if (ingestProgressFill) ingestProgressFill.style.width = "30%";
 
             // 2. Analyze (Map)
+            let analyzedCount = 0;
+            const totalToAnalyze = processedVideos.filter(
+                (v) =>
+                    v.status === "fetched" ||
+                    (v.status === "analyzed" && !v.cached),
+            ).length;
+
+            if (totalToAnalyze === 0) {
+                if (ingestProgressFill) ingestProgressFill.style.width = "100%";
+                if (ingestStatus)
+                    ingestStatus.textContent = "All videos loaded from cache.";
+            }
+
             for (const video of processedVideos) {
                 if (
                     video.status === "fetched" ||
                     (video.status === "analyzed" && !video.cached)
                 ) {
                     updateStatus(video.videoId, "analyzing");
+                    if (ingestStatus)
+                        ingestStatus.textContent = `Analyzing ${video.videoId}... (${analyzedCount + 1}/${totalToAnalyze})`;
 
                     const analyzeRes = await fetch("/api/research/analyze", {
                         method: "POST",
@@ -136,11 +205,24 @@ import Layout from "../layouts/Layout.astro";
                     if (idx !== -1) processedVideos[idx] = analyzedData;
 
                     updateStatus(video.videoId, "analyzed");
+
+                    analyzedCount++;
+                    const progress = 30 + (analyzedCount / totalToAnalyze) * 70;
+                    if (ingestProgressFill)
+                        ingestProgressFill.style.width = `${progress}%`;
                 }
             }
+
+            if (ingestStatus)
+                ingestStatus.textContent = "Ingestion and analysis complete!";
+            setTimeout(() => {
+                ingestStatus?.classList.add("hidden");
+                ingestProgressBar?.classList.add("hidden");
+            }, 5000);
         } catch (e) {
             console.error(e);
             alert("Error during processing");
+            if (ingestStatus) ingestStatus.textContent = "Error occurred.";
         } finally {
             ingestBtn.textContent = "Start Ingestion";
             (ingestBtn as HTMLButtonElement).disabled = false;
@@ -150,7 +232,13 @@ import Layout from "../layouts/Layout.astro";
     generateBtn?.addEventListener("click", async () => {
         generateBtn.textContent = "Generating...";
         (generateBtn as HTMLButtonElement).disabled = true;
+        downloadBtn?.classList.add("hidden");
         reportOutput?.classList.add("hidden");
+
+        reportStatus?.classList.remove("hidden");
+        if (reportStatus)
+            reportStatus.textContent =
+                "Synthesizing white paper from analyzed videos...";
 
         try {
             const res = await fetch("/api/research/generate-report", {
@@ -166,14 +254,36 @@ import Layout from "../layouts/Layout.astro";
             if (reportOutput) {
                 reportOutput.innerHTML = marked.parse(report) as string;
                 reportOutput.classList.remove("hidden");
+                downloadBtn?.classList.remove("hidden");
             }
+            if (reportStatus)
+                reportStatus.textContent = "Report generated successfully!";
+            setTimeout(() => {
+                reportStatus?.classList.add("hidden");
+            }, 3000);
         } catch (e) {
             console.error(e);
             alert("Error generating report");
+            if (reportStatus)
+                reportStatus.textContent = "Error generating report.";
         } finally {
             generateBtn.textContent = "Generate White Paper";
             (generateBtn as HTMLButtonElement).disabled = false;
         }
+    });
+
+    downloadBtn?.addEventListener("click", () => {
+        const element = document.getElementById("reportOutput");
+        if (!element) return;
+
+        const opt = {
+            margin: 1,
+            filename: "research-report.pdf",
+            image: { type: "jpeg", quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+        } as any;
+        html2pdf().set(opt).from(element).save();
     });
 
     function renderProgress() {

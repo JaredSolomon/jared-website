@@ -17,7 +17,11 @@ export const POST: APIRoute = async ({ request }) => {
         }
 
         if (data.status === 'analyzed') {
-            return new Response(JSON.stringify(data), { status: 200 });
+            // If location is missing, we need to re-analyze
+            if (data.analysis?.location) {
+                return new Response(JSON.stringify(data), { status: 200 });
+            }
+            console.log(`Re-analyzing ${videoId} to extract location data...`);
         }
 
         const apiKey = import.meta.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY;
@@ -36,6 +40,11 @@ export const POST: APIRoute = async ({ request }) => {
             "summary": "Concise summary of the meeting.",
             "meetingDate": "YYYY-MM-DD (if mentioned, else null)",
             "meetingType": "e.g. City Council, Planning Commission, etc.",
+            "location": {
+                "city": "City name if mentioned (e.g. Tupelo)",
+                "county": "County name if mentioned (e.g. Lee County)",
+                "state": "State abbreviation (e.g. MS)"
+            },
             "issues": [
                 {
                     "title": "Short title of the issue",
