@@ -1,0 +1,225 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Research Hub">
+    <main class="container mx-auto px-4 py-8 max-w-4xl">
+        <h1 class="text-4xl font-bold mb-8 text-white">Research Hub</h1>
+
+        <!-- Ingest Section -->
+        <div class="bg-gray-800 p-6 rounded-lg mb-8 border border-gray-700">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-200">
+                1. Ingest Videos
+            </h2>
+            <p class="text-gray-400 mb-4">
+                Paste YouTube URLs (one per line) to begin analysis.
+            </p>
+            <textarea
+                id="urlInput"
+                class="w-full h-40 bg-gray-900 text-white p-4 rounded border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none font-mono text-sm"
+                placeholder="https://www.youtube.com/watch?v=..."></textarea>
+            <button
+                id="ingestBtn"
+                class="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded transition-colors"
+            >
+                Start Ingestion
+            </button>
+        </div>
+
+        <!-- Progress Section -->
+        <div
+            id="progressSection"
+            class="hidden bg-gray-800 p-6 rounded-lg mb-8 border border-gray-700"
+        >
+            <h2 class="text-2xl font-semibold mb-4 text-gray-200">
+                2. Analysis Progress
+            </h2>
+            <div
+                id="progressGrid"
+                class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-60 overflow-y-auto"
+            >
+                <!-- Items injected here -->
+            </div>
+        </div>
+
+        <!-- Report Section -->
+        <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-semibold text-gray-200">
+                    3. Generate Report
+                </h2>
+                <select
+                    id="categoryFilter"
+                    class="bg-gray-900 text-white px-3 py-1 rounded border border-gray-600"
+                >
+                    <option value="">All Categories</option>
+                    <option value="Real Estate">Real Estate</option>
+                    <option value="Business">Business</option>
+                    <option value="Infrastructure">Infrastructure</option>
+                    <option value="Public Safety">Public Safety</option>
+                    <option value="Budget">Budget</option>
+                </select>
+            </div>
+            <button
+                id="generateBtn"
+                class="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded transition-colors mb-6"
+            >
+                Generate White Paper
+            </button>
+
+            <div
+                id="reportOutput"
+                class="prose prose-invert max-w-none bg-gray-900 p-8 rounded min-h-[200px] hidden"
+            >
+                <!-- Markdown content -->
+            </div>
+        </div>
+    </main>
+</Layout>
+
+<script>
+    import { marked } from "marked";
+
+    const urlInput = document.getElementById("urlInput") as HTMLTextAreaElement;
+    const ingestBtn = document.getElementById("ingestBtn");
+    const progressSection = document.getElementById("progressSection");
+    const progressGrid = document.getElementById("progressGrid");
+    const generateBtn = document.getElementById("generateBtn");
+    const reportOutput = document.getElementById("reportOutput");
+    const categoryFilter = document.getElementById(
+        "categoryFilter",
+    ) as HTMLSelectElement;
+
+    let processedVideos: any[] = [];
+
+    ingestBtn?.addEventListener("click", async () => {
+        const urls = urlInput.value
+            .split("\n")
+            .map((u) => u.trim())
+            .filter((u) => u);
+        if (urls.length === 0) return;
+
+        ingestBtn.textContent = "Ingesting...";
+        (ingestBtn as HTMLButtonElement).disabled = true;
+        progressSection?.classList.remove("hidden");
+        progressGrid!.innerHTML = "";
+
+        try {
+            // 1. Ingest
+            const ingestRes = await fetch("/api/research/ingest", {
+                method: "POST",
+                body: JSON.stringify({ urls }),
+            });
+            const { results } = await ingestRes.json();
+            processedVideos = results;
+
+            renderProgress();
+
+            // 2. Analyze (Map)
+            for (const video of processedVideos) {
+                if (
+                    video.status === "fetched" ||
+                    (video.status === "analyzed" && !video.cached)
+                ) {
+                    updateStatus(video.videoId, "analyzing");
+
+                    const analyzeRes = await fetch("/api/research/analyze", {
+                        method: "POST",
+                        body: JSON.stringify({ videoId: video.videoId }),
+                    });
+                    const analyzedData = await analyzeRes.json();
+
+                    // Update local state
+                    const idx = processedVideos.findIndex(
+                        (v) => v.videoId === video.videoId,
+                    );
+                    if (idx !== -1) processedVideos[idx] = analyzedData;
+
+                    updateStatus(video.videoId, "analyzed");
+                }
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Error during processing");
+        } finally {
+            ingestBtn.textContent = "Start Ingestion";
+            (ingestBtn as HTMLButtonElement).disabled = false;
+        }
+    });
+
+    generateBtn?.addEventListener("click", async () => {
+        generateBtn.textContent = "Generating...";
+        (generateBtn as HTMLButtonElement).disabled = true;
+        reportOutput?.classList.add("hidden");
+
+        try {
+            const res = await fetch("/api/research/generate-report", {
+                method: "POST",
+                body: JSON.stringify({
+                    filters: {
+                        category: categoryFilter.value || undefined,
+                    },
+                }),
+            });
+            const { report } = await res.json();
+
+            if (reportOutput) {
+                reportOutput.innerHTML = marked.parse(report) as string;
+                reportOutput.classList.remove("hidden");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Error generating report");
+        } finally {
+            generateBtn.textContent = "Generate White Paper";
+            (generateBtn as HTMLButtonElement).disabled = false;
+        }
+    });
+
+    function renderProgress() {
+        if (!progressGrid) return;
+        progressGrid.innerHTML = processedVideos
+            .map(
+                (v) => `
+            <div id="card-${v.videoId}" class="bg-gray-900 p-3 rounded border border-gray-700 flex justify-between items-center">
+                <div class="truncate pr-4">
+                    <div class="font-medium text-gray-200 truncate">${v.title || v.url}</div>
+                    <div class="text-xs text-gray-500">${v.videoId}</div>
+                </div>
+                <div class="status-badge px-2 py-1 rounded text-xs font-bold ${getStatusColor(v.status)}">
+                    ${v.status.toUpperCase()}
+                </div>
+            </div>
+        `,
+            )
+            .join("");
+    }
+
+    function updateStatus(videoId: string, status: string) {
+        const card = document.getElementById(`card-${videoId}`);
+        if (card) {
+            const badge = card.querySelector(".status-badge");
+            if (badge) {
+                badge.className = `status-badge px-2 py-1 rounded text-xs font-bold ${getStatusColor(status)}`;
+                badge.textContent = status.toUpperCase();
+            }
+        }
+    }
+
+    function getStatusColor(status: string) {
+        switch (status) {
+            case "queued":
+                return "bg-gray-700 text-gray-300";
+            case "fetched":
+                return "bg-blue-900 text-blue-200";
+            case "analyzing":
+                return "bg-yellow-900 text-yellow-200 animate-pulse";
+            case "analyzed":
+                return "bg-green-900 text-green-200";
+            case "error":
+                return "bg-red-900 text-red-200";
+            default:
+                return "bg-gray-700 text-gray-300";
+        }
+    }
+</script>
