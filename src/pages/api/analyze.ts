@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { YoutubeTranscript } from "youtube-transcript";
+import { Innertube } from "youtubei.js";
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
@@ -28,8 +28,20 @@ export const POST: APIRoute = async ({ request }) => {
         // 2. Fetch Transcript
         let transcriptText = "";
         try {
-            const transcriptItems = await YoutubeTranscript.fetchTranscript(videoId);
-            transcriptText = transcriptItems.map((item) => item.text).join(" ");
+            const youtube = await Innertube.create({
+                lang: 'en',
+                location: 'US',
+                retrieve_player: false
+            });
+            const info = await youtube.getInfo(videoId);
+            const transcriptData = await info.getTranscript();
+
+            if (transcriptData?.transcript?.content?.body?.initial_segments) {
+                const segments = transcriptData.transcript.content.body.initial_segments;
+                transcriptText = segments.map((s) => s.snippet.text).join(" ");
+            } else {
+                throw new Error("No transcript data found");
+            }
         } catch (error) {
             console.error("Transcript fetch error:", error);
             return new Response(
