@@ -56,6 +56,16 @@ export const POST: APIRoute = async ({ request }) => {
         // 3. Analyze with Gemini
         const apiKey = import.meta.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY;
 
+        console.log("Debug - API Key Check:");
+        console.log("import.meta.env.GEMINI_API_KEY:", !!import.meta.env.GEMINI_API_KEY);
+        console.log("process.env.GEMINI_API_KEY:", !!process.env.GEMINI_API_KEY);
+        console.log("Selected apiKey exists:", !!apiKey);
+        if (apiKey) {
+            console.log("apiKey length:", apiKey.length);
+            console.log("apiKey prefix:", apiKey.substring(0, 4));
+            console.log("apiKey suffix:", apiKey.substring(apiKey.length - 4));
+        }
+
         if (!apiKey) {
             return new Response(
                 JSON.stringify({
