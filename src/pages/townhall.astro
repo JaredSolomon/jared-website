@@ -1,0 +1,257 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout>
+    <div
+        class="min-h-screen flex flex-col items-center p-4 relative overflow-hidden"
+    >
+        <!-- Background Glow -->
+        <div
+            class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/20 blur-[100px] rounded-full animate-pulse-slow z-[-1]"
+        >
+        </div>
+
+        <!-- Password Modal -->
+        <div
+            id="password-modal"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md"
+        >
+            <div
+                class="bg-surface border border-white/10 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl"
+            >
+                <div class="text-center mb-6">
+                    <div
+                        class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-3xl mx-auto mb-4"
+                    >
+                        🔒
+                    </div>
+                    <h2 class="text-2xl font-bold text-white mb-2">
+                        Restricted Access
+                    </h2>
+                    <p class="text-gray-400">
+                        Please enter the password to access the Townhall
+                        Summarizer.
+                    </p>
+                </div>
+                <form id="password-form" class="space-y-4">
+                    <input
+                        type="password"
+                        id="password-input"
+                        placeholder="Enter password"
+                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all"
+                        required
+                    />
+                    <button
+                        type="submit"
+                        class="w-full bg-primary hover:bg-primary/80 text-white font-bold py-3 px-6 rounded-xl transition-all hover:scale-105 active:scale-95"
+                    >
+                        Unlock
+                    </button>
+                    <p
+                        id="password-error"
+                        class="hidden text-red-400 text-sm text-center"
+                    >
+                        Incorrect password
+                    </p>
+                </form>
+            </div>
+        </div>
+
+        <div
+            id="protected-content"
+            class="hidden w-full max-w-4xl mx-auto z-10 mt-12"
+        >
+            <a
+                href="/"
+                class="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-8 transition-colors group"
+            >
+                <span
+                    class="group-hover:-translate-x-1 transition-transform duration-300"
+                    >←</span
+                > Return to Home
+            </a>
+            <div class="text-center mb-12">
+                <h1
+                    class="text-5xl md:text-6xl font-bold mb-4 tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-white/50"
+                >
+                    Townhall Summarizer
+                </h1>
+                <p class="text-gray-400 text-lg">
+                    Paste a YouTube URL to extract key issues and summaries.
+                </p>
+            </div>
+
+            <!-- Input Section -->
+            <div
+                class="bg-surface backdrop-blur-xl border border-white/10 rounded-2xl p-8 mb-8 shadow-2xl"
+            >
+                <form id="analyze-form" class="flex flex-col md:flex-row gap-4">
+                    <input
+                        type="url"
+                        id="video-url"
+                        name="url"
+                        placeholder="https://www.youtube.com/watch?v=..."
+                        required
+                        class="flex-1 bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all"
+                    />
+                    <button
+                        type="submit"
+                        class="bg-primary hover:bg-primary/80 text-white font-bold py-4 px-8 rounded-xl transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Analyze
+                    </button>
+                </form>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading" class="hidden text-center py-12">
+                <div
+                    class="inline-block w-12 h-12 border-4 border-white/10 border-t-primary rounded-full animate-spin mb-4"
+                >
+                </div>
+                <p class="text-gray-400">
+                    Analyzing transcript... this may take a moment.
+                </p>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results" class="hidden space-y-6">
+                <!-- Summary Card -->
+                <div
+                    class="bg-surface backdrop-blur-xl border border-white/10 rounded-2xl p-8"
+                >
+                    <h2
+                        class="text-2xl font-bold text-white mb-4 flex items-center gap-2"
+                    >
+                        <span>📝</span> Executive Summary
+                    </h2>
+                    <div
+                        id="summary-content"
+                        class="text-gray-300 leading-relaxed prose prose-invert max-w-none"
+                    >
+                        <!-- Summary will be injected here -->
+                    </div>
+                </div>
+
+                <!-- Key Issues Card -->
+                <div
+                    class="bg-surface backdrop-blur-xl border border-white/10 rounded-2xl p-8"
+                >
+                    <h2
+                        class="text-2xl font-bold text-white mb-4 flex items-center gap-2"
+                    >
+                        <span>🔍</span> Key Issues
+                    </h2>
+                    <div id="issues-content" class="grid gap-4">
+                        <!-- Issues will be injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div
+                id="error-message"
+                class="hidden bg-red-500/10 border border-red-500/20 rounded-xl p-6 text-red-200 text-center"
+            >
+            </div>
+        </div>
+    </div>
+</Layout>
+
+<script>
+    // Password Logic
+    const passwordModal = document.getElementById("password-modal");
+    const passwordForm = document.getElementById("password-form");
+    const passwordInput = document.getElementById(
+        "password-input",
+    ) as HTMLInputElement;
+    const passwordError = document.getElementById("password-error");
+    const protectedContent = document.getElementById("protected-content");
+
+    // Check session storage
+    if (sessionStorage.getItem("townhall_auth") === "true") {
+        passwordModal?.classList.add("hidden");
+        protectedContent?.classList.remove("hidden");
+    }
+
+    passwordForm?.addEventListener("submit", (e) => {
+        e.preventDefault();
+        if (passwordInput?.value === "robpillow") {
+            sessionStorage.setItem("townhall_auth", "true");
+            passwordModal?.classList.add("hidden");
+            protectedContent?.classList.remove("hidden");
+            passwordError?.classList.add("hidden");
+        } else {
+            passwordError?.classList.remove("hidden");
+            passwordInput.value = "";
+            passwordInput.focus();
+        }
+    });
+
+    // Analysis Logic
+    const form = document.getElementById("analyze-form") as HTMLFormElement;
+    const loading = document.getElementById("loading");
+    const results = document.getElementById("results");
+    const errorMessage = document.getElementById("error-message");
+    const summaryContent = document.getElementById("summary-content");
+    const issuesContent = document.getElementById("issues-content");
+
+    form?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const url = formData.get("url") as string;
+
+        // Reset UI
+        loading?.classList.remove("hidden");
+        results?.classList.add("hidden");
+        errorMessage?.classList.add("hidden");
+
+        try {
+            const response = await fetch("/api/analyze", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ url }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                if (data.code === "NO_CAPTIONS") {
+                    throw new Error(
+                        "This video doesn't have captions. Please try a video with closed captions enabled.",
+                    );
+                }
+                throw new Error(data.error || "Failed to analyze video");
+            }
+
+            // Render Summary
+            if (summaryContent) summaryContent.innerHTML = data.summary;
+
+            // Render Issues
+            if (issuesContent) {
+                issuesContent.innerHTML = data.issues
+                    .map(
+                        (issue: any) => `
+          <div class="bg-white/5 rounded-xl p-4 border border-white/5 hover:border-white/10 transition-colors">
+            <h3 class="font-bold text-primary mb-2 text-lg">${issue.title}</h3>
+            <p class="text-gray-400 text-sm">${issue.description}</p>
+          </div>
+        `,
+                    )
+                    .join("");
+            }
+
+            results?.classList.remove("hidden");
+        } catch (error: any) {
+            if (errorMessage) {
+                errorMessage.textContent = error.message;
+                errorMessage.classList.remove("hidden");
+            }
+        } finally {
+            loading?.classList.add("hidden");
+        }
+    });
+</script>

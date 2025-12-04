@@ -31,7 +31,23 @@ import StockGrid from "../components/StockGrid.astro";
                     >
                         Market Tracker
                     </h1>
-                    <p class="text-gray-400 mt-2">Live market data</p>
+                    <div class="flex items-center gap-3 mt-2">
+                        <p class="text-gray-400">Live market data</p>
+                        <div
+                            id="market-status"
+                            class="hidden items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border"
+                        >
+                            <span class="relative flex h-2 w-2">
+                                <span
+                                    class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-current"
+                                ></span>
+                                <span
+                                    class="relative inline-flex rounded-full h-2 w-2 bg-current"
+                                ></span>
+                            </span>
+                            <span class="status-text"></span>
+                        </div>
+                    </div>
                 </div>
             </header>
 
@@ -39,3 +55,137 @@ import StockGrid from "../components/StockGrid.astro";
         </div>
     </div>
 </Layout>
+
+<script>
+    function getEasterDate(year) {
+        const f = Math.floor,
+            G = year % 19,
+            C = f(year / 100),
+            H = (C - f(C / 4) - f((8 * C + 13) / 25) + 19 * G + 15) % 30,
+            I = H - f(H / 28) * (1 - f(29 / (H + 1)) * f((21 - G) / 11)),
+            J = (year + f(year / 4) + I + 2 - C + f(C / 4)) % 7,
+            L = I - J,
+            month = 3 + f((L + 40) / 44),
+            day = L + 28 - 31 * f(month / 4);
+        return { month, day };
+    }
+
+    function isMarketHoliday(date) {
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1; // 1-12
+        const day = date.getDate();
+        const dayOfWeek = date.getDay(); // 0=Sun, 1=Mon, ...
+
+        // Helper for Nth weekday of month
+        const isNthWeekday = (n, weekday) => {
+            if (dayOfWeek !== weekday) return false;
+            const weekNum = Math.floor((day - 1) / 7) + 1;
+            return weekNum === n;
+        };
+
+        // Helper for Last weekday of month
+        const isLastWeekday = (weekday) => {
+            if (dayOfWeek !== weekday) return false;
+            const daysInMonth = new Date(year, month, 0).getDate();
+            return day + 7 > daysInMonth;
+        };
+
+        // Fixed Dates (observed logic: if Sat -> Fri, if Sun -> Mon is usually handled by market,
+        // but for simplicity we'll check exact dates and let the weekend check handle the observation if it falls on weekend)
+        // Actually NYSE observes holidays on nearest weekday usually.
+        // Let's stick to the official holidays.
+
+        // New Year's Day (Jan 1)
+        if (month === 1 && day === 1) return true;
+
+        // Martin Luther King, Jr. Day (3rd Mon in Jan)
+        if (month === 1 && isNthWeekday(3, 1)) return true;
+
+        // Washington's Birthday (3rd Mon in Feb)
+        if (month === 2 && isNthWeekday(3, 1)) return true;
+
+        // Good Friday
+        const easter = getEasterDate(year);
+        const goodFriday = new Date(year, easter.month - 1, easter.day - 2);
+        if (month === goodFriday.getMonth() + 1 && day === goodFriday.getDate())
+            return true;
+
+        // Memorial Day (Last Mon in May)
+        if (month === 5 && isLastWeekday(1)) return true;
+
+        // Juneteenth (June 19)
+        if (month === 6 && day === 19) return true;
+
+        // Independence Day (July 4)
+        if (month === 7 && day === 4) return true;
+
+        // Labor Day (1st Mon in Sept)
+        if (month === 9 && isNthWeekday(1, 1)) return true;
+
+        // Thanksgiving Day (4th Thu in Nov)
+        if (month === 11 && isNthWeekday(4, 4)) return true;
+
+        // Christmas Day (Dec 25)
+        if (month === 12 && day === 25) return true;
+
+        return false;
+    }
+
+    function updateMarketStatus() {
+        const statusEl = document.getElementById("market-status");
+        const statusText = statusEl?.querySelector(".status-text");
+
+        if (!statusEl || !statusText) return;
+
+        const now = new Date();
+        // Convert to EST
+        const estTime = new Date(
+            now.toLocaleString("en-US", { timeZone: "America/New_York" }),
+        );
+
+        const day = estTime.getDay(); // 0 = Sunday, 6 = Saturday
+        const hour = estTime.getHours();
+        const minute = estTime.getMinutes();
+
+        // Market Hours: Mon-Fri, 9:30 AM - 4:00 PM EST
+        const isWeekday = day >= 1 && day <= 5;
+        const isOpenHours =
+            (hour > 9 || (hour === 9 && minute >= 30)) && hour < 16;
+        const isHoliday = isMarketHoliday(estTime);
+
+        const isOpen = isWeekday && isOpenHours && !isHoliday;
+
+        statusEl.classList.remove(
+            "hidden",
+            "bg-emerald-500/10",
+            "text-emerald-400",
+            "border-emerald-500/20",
+            "bg-red-500/10",
+            "text-red-400",
+            "border-red-500/20",
+        );
+        statusEl.classList.add("flex");
+
+        if (isOpen) {
+            statusEl.classList.add(
+                "bg-emerald-500/10",
+                "text-emerald-400",
+                "border-emerald-500/20",
+            );
+            statusText.textContent = "Market Open";
+        } else {
+            statusEl.classList.add(
+                "bg-red-500/10",
+                "text-red-400",
+                "border-red-500/20",
+            );
+            statusText.textContent = isHoliday
+                ? "Market Closed (Holiday)"
+                : "Market Closed";
+        }
+    }
+
+    updateMarketStatus();
+    // Update every minute
+    setInterval(updateMarketStatus, 60000);
+</script>
